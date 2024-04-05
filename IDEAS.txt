@@ -14,8 +14,17 @@ HACKATTHON IDEAS:
 	- Given analysis, search research papers/academia/books for accurate evidence/summaries 
 3. 
 	- Study Assistant - real time quizzing/knowledge checkin while watching lecture, exam prep, practice questions, conceptual diagramming
-		- create personalized learning paths, adjust based on student responses/performance
+		- create personalized learning paths, adjust based on student responses/performance, based on piazza posts too ? ? ?idk
+		- create study guides based on lectures
 		- student can ask "how to learn more about [TOPIC]" and we can tell them exact timestamp in video to look at, and exact practice problems to do, and give more maybe
 
 4. 
 	- Editing video footage ? 
+
+5. 
+	- Company specific interview prep package? idk idk might already be done?? or too basic?? lol
+	- using all common interview questions, from leetcode, glassdoor, advice from reddit?, company website, application, youtube videos, tells u what to focus on idk
+	- gives mock interview/feedback?  ?? ? ?  
+
+6. 
+	- test case generator ? ? ? based on large code base and stuff from online related to ur code?? 
