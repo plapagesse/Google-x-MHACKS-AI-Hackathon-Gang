@@ -10,3 +10,12 @@ HACKATTHON IDEAS:
 			- classify the problem (too much too handle, mental health down, etc) - could influence solution
 			- calculate risk score based on the number of flagged messages (not gemini, but we can use the number of flagged messages to do so)
 		- Enable central maintainer (linus and his team xd) to track and suface risk across projects
+2. 
+	- Given analysis, search research papers/academia/books for accurate evidence/summaries 
+3. 
+	- Study Assistant - real time quizzing/knowledge checkin while watching lecture, exam prep, practice questions, conceptual diagramming
+		- create personalized learning paths, adjust based on student responses/performance
+		- student can ask "how to learn more about [TOPIC]" and we can tell them exact timestamp in video to look at, and exact practice problems to do, and give more maybe
+
+4. 
+	- Editing video footage ? 
