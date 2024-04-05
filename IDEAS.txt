@@ -1,0 +1,10 @@
+HACKATTHON IDEAS:
+	- major open source projects mailing list tracker (sentiment analys-isish?) 
+		- given recent xz attack - hacker took maintainer's role since original maintainer was burnt out and being pressured by contributors
+		- if there was a way for central authorities to flag maintainers in need of support, could have been prevented 
+		- Could use gemini's large context window for: 
+			- flagging messages 
+			- summarize struggles/issues maintainer is going through (giving proof - pointing to specific messages)
+			- classify the problem (too much too handle, mental health down, etc) - could influence solution
+			- calculate risk score based on the number of flagged messages (not gemini, but we can use the number of flagged messages to do so)
+		- Enable central maintainer (linus and his team xd) to track and suface risk across projects
