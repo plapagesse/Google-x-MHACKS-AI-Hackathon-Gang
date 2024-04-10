@@ -75,3 +75,5 @@
 	- Analyze PR diffs to highlight and prioritize the most interesting changes
 	- Provide intelligent summaries of code changes ("This PR appears to add several HTTP endpoints")
 	- Flag common code issues ("this class appears to violate the Single Responsibility Principle because...")
+	- Attempt to intelligently diagnose and explain test case failures
+
