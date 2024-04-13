@@ -5,6 +5,8 @@ import shutil
 from pyannote.audio import Pipeline
 import torch
 from dotenv import load_dotenv
+import pdb
+import pandas as pd
 
 ### CONFIGURE KEYS IN A .ENV FILE###
 load_dotenv()
@@ -76,7 +78,12 @@ def make_request(prompt, files):
     request.append(file.response)
   return request
 
-if __name__ == '__main__':
+def upload_video(prefix, df, do_upload):
+
+    shutil.rmtree(FRAME_EXTRACTION_DIRECTORY)
+    os.mkdir(FRAME_EXTRACTION_DIRECTORY)
+
+    video_file_name = prefix + '.mp4'
     extract_frame_from_video(video_file_name) 
     # Process each frame in the output directory
     files = os.listdir(FRAME_EXTRACTION_DIRECTORY)
@@ -93,12 +100,19 @@ if __name__ == '__main__':
 
     uploaded_files = []
     print(f'Uploading {len(files_to_upload) if full_video else 10} files. This might take a bit...')
+    new_df = []
 
     for file in files_to_upload if full_video else files_to_upload[40:50]:
         print(f'Uploading: {file.file_path}...')
-        response = genai.upload_file(path=file.file_path)
+        # response = genai.upload_file(path=file.file_path)
+        response = do_upload(path=file.file_path)
         file.set_file_response(response)
         uploaded_files.append(file)
+        new_df.append((response.name, response.display_name, prefix))
+
+    new_df = pd.DataFrame(new_df, columns=['uid', 'display_name', 'origin_name'])
+    df = pd.concat((df, new_df), axis=0)
+        
 
     print(f"Completed file uploads!\n\nUploaded: {len(uploaded_files)} files")
 
@@ -118,20 +132,52 @@ if __name__ == '__main__':
 
     ### SPEAKER CLASSIFICATION ###
 
-    audio_file = genai.upload_file(path='DG Check-in-20230705_084639-Meeting Recording (online-video-cutter.com) (1).mp3')
+    audio_name = prefix + '.mp3'
+    #audio_file = genai.upload_file(path=audio_name)
+    audio_file = do_upload(path=audio_name)
+    df = pd.concat((df, pd.DataFrame({'uid' : [audio_file.name], 
+                                     'display_name' : [audio_file.display_name], 
+                                     'origin_name' : [prefix]})), axis=0
+                                     )
+    
+    return df
 
+
+class MockFile:
+   def __init__(self, name, display_name):
+      self.name = name
+      self.display_name = display_name
+
+class MockUpload:
+    def __init__(self):
+        self.counter =0
+
+    def __call__(self, path):
+       self.counter += 1
+       return MockFile(self.counter, display_name=path)
+
+if __name__ == '__main__':
+    
+    
+    df = pd.DataFrame({'origin_name': [], "display_name": [], "uid": []})
+    prefixes = ['testSample1', 'testSample2', 'testSample3', 'testSample4', 'testSample5']
+    for prefix in prefixes:
+       df = upload_video(prefix, df, do_upload=genai.upload_file)
+
+
+    df.to_csv("file_manifest.csv")
     ### GEMINI CALL ###
     # Create the prompt.
-    prompt = "based on whose name is highlighted in the meeting (on right side of screen) at each point in the audio file, determine accurately who speaks a lot and who does not. name lighting up = speaking. also give feedback for this meeting. you have to give feedback to each member who spoke, level of participation, as well as overall meeting productivity. also note important things discussed, and possible future tasks"
-    #prompt = "What was the first thing said in the meeting?"
-    # Set the model to Gemini 1.5 Pro.
-    model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
+    # prompt = "based on whose name is highlighted in the meeting (on right side of screen) at each point in the audio file, determine accurately who speaks a lot and who does not. name lighting up = speaking. also give feedback for this meeting. you have to give feedback to each member who spoke, level of participation, as well as overall meeting productivity. also note important things discussed, and possible future tasks"
+    # #prompt = "What was the first thing said in the meeting?"
+    # # Set the model to Gemini 1.5 Pro.
+    # model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
     # Make the LLM request.
-    request = make_request(prompt, uploaded_files)
-    request.append(audio_file)
-    response = model.generate_content(request,
-                                    request_options={"timeout": 600})
-    print(response.text)
+    # request = make_request(prompt, uploaded_files)
+    # request.append(audio_file)
+    # response = model.generate_content(request,
+                                    # request_options={"timeout": 600})
+    # print(response.text)
 
 
 
