@@ -113,8 +113,13 @@ if __name__ == '__main__':
     pipeline.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     diarization = pipeline("DG Check-in-20230705_084639-Meeting Recording (online-video-cutter.com) (1).wav")
 
+    speaker_freq = {}
+
     for turn, _, speaker in diarization.itertracks(yield_label=True):
-        print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+      if speaker not in speaker_freq:
+        speaker_freq[speaker] = 0
+      speaker_freq[speaker]+=1
+      print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
 
     ### SPEAKER CLASSIFICATION ###
 
@@ -122,13 +127,14 @@ if __name__ == '__main__':
 
     ### GEMINI CALL ###
     # Create the prompt.
-    prompt = "based on whose name is highlighted in the meeting (on right side of screen) at each point in the audio file, determine accurately who speaks a lot and who does not. name lighting up = speaking. also give feedback for this meeting. you have to give feedback to each member who spoke, level of participation, as well as overall meeting productivity. also note important things discussed, and possible future tasks"
+    prompt = "you are given an audio file, frames of a meeting video, and a dictionary representing the number of times each unique speaker in the meeting spoke(key=speaker, value=count). determine if all indivudals speak fairly the same amount, and if not, note the lack of collective participation. also give feedback for this meeting. you have to give feedback to each member who spoke, level of participation, as well as overall meeting productivity. also note if it seemed like there was a lack of knowledge or effort from people. also note important things discussed, and possible future tasks"
     #prompt = "What was the first thing said in the meeting?"
     # Set the model to Gemini 1.5 Pro.
     model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
     # Make the LLM request.
     request = make_request(prompt, uploaded_files)
     request.append(audio_file)
+    request.append(speaker_freq)
     response = model.generate_content(request,
                                     request_options={"timeout": 600})
     print(response.text)
