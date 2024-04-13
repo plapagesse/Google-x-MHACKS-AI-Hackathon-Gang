@@ -159,13 +159,26 @@ class MockUpload:
 if __name__ == '__main__':
     
     
-    df = pd.DataFrame({'origin_name': [], "display_name": [], "uid": []})
-    prefixes = ['testSample1', 'testSample2', 'testSample3', 'testSample4', 'testSample5']
-    for prefix in prefixes:
-       df = upload_video(prefix, df, do_upload=genai.upload_file)
+    # df = pd.DataFrame({'origin_name': [], "display_name": [], "uid": []})
+    # prefixes = ['testSample1', 'testSample2', 'testSample3', 'testSample4', 'testSample5']
+    # for prefix in prefixes:
+    #    df = upload_video(prefix, df, do_upload=genai.upload_file)
 
+    df = pd.read_csv('file_manifest.csv')
+    test_file = 'testSample1'
 
-    df.to_csv("file_manifest.csv")
+    df = df[df['origin_name'] == test_file]
+
+    frame_uids = df[df['display_name'].str.contains('*jpg*')]['uid'].to_list()
+    audio_uid = df[df['display_name'].str.contains('*mp3*')]['uid'].iloc[0].to_list()
+
+    frames = []
+    for frame in frame_uids:
+       frames.append(genai.get_file(frame))
+
+    audio = genai.get_file(audio_uid)
+
+    #df.to_csv("file_manifest.csv")
     ### GEMINI CALL ###
     # Create the prompt.
     # prompt = "based on whose name is highlighted in the meeting (on right side of screen) at each point in the audio file, determine accurately who speaks a lot and who does not. name lighting up = speaking. also give feedback for this meeting. you have to give feedback to each member who spoke, level of participation, as well as overall meeting productivity. also note important things discussed, and possible future tasks"
