@@ -169,8 +169,8 @@ if __name__ == '__main__':
 
     df = df[df['origin_name'] == test_file]
 
-    frame_uids = df[df['display_name'].str.contains('*jpg*')]['uid'].to_list()
-    audio_uid = df[df['display_name'].str.contains('*mp3*')]['uid'].iloc[0].to_list()
+    frame_uids = df[df['display_name'].str.contains('.jpg')]['uid'].to_list()
+    audio_uid = df[df['display_name'].str.contains('.mp3')]['uid'].iloc[0].to_list()
 
     frames = []
     for frame in frame_uids:
