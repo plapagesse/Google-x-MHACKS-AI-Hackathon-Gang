@@ -30,6 +30,12 @@ class File:
   def set_file_response(self, response):
     self.response = response
 
+class MeetingFeedback:
+    def __init__(self):
+        pass
+    def prompt(self, frames, audio, speaker_frequencies):
+        pass
+
 def get_timestamp(filename):
   """Extracts the frame count (as an integer) from a filename with the format
      'output_file_prefix_frame00:00.jpg'.
@@ -156,6 +162,24 @@ class MockUpload:
        self.counter += 1
        return MockFile(self.counter, display_name=path)
 
+def get_frames_and_audio(test_file):
+  df = pd.read_csv('file_manifest.csv')
+
+  df = df[df['origin_name'] == test_file]
+
+  frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
+  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0].to_list()
+
+  frames = []
+  for frame in frame_uids:
+      frames.append(genai.get_file(frame))
+
+  audio = genai.get_file(audio_uid)
+
+  return frames, audio
+
+
+
 if __name__ == '__main__':
     
     
@@ -164,19 +188,10 @@ if __name__ == '__main__':
     # for prefix in prefixes:
     #    df = upload_video(prefix, df, do_upload=genai.upload_file)
 
-    df = pd.read_csv('file_manifest.csv')
-    test_file = 'testSample1'
-
-    df = df[df['origin_name'] == test_file]
-
-    frame_uids = df[df['display_name'].str.contains('.jpg')]['uid'].to_list()
-    audio_uid = df[df['display_name'].str.contains('.mp3')]['uid'].iloc[0].to_list()
-
-    frames = []
-    for frame in frame_uids:
-       frames.append(genai.get_file(frame))
-
-    audio = genai.get_file(audio_uid)
+    frames, audio = get_frames_and_audio("testSample1")
+    print(frames)
+    print(audio)
+    
 
     #df.to_csv("file_manifest.csv")
     ### GEMINI CALL ###
