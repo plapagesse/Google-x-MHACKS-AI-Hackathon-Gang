@@ -20,6 +20,13 @@ FRAME_EXTRACTION_DIRECTORY = "frames"
 FRAME_PREFIX = "_frame"
 AUDIO_FILE = "DG Check-in-20230705_084639-Meeting Recording (online-video-cutter.com) (1).wav"
 
+class MeetingScribe:
+    def __init__(self):
+        pass
+    def prompt(self, frames, audio):
+        pass
+
+
 class File:
   def __init__(self, file_path: str, display_name: str = None):
     self.file_path = file_path
@@ -168,7 +175,7 @@ def get_frames_and_audio(test_file):
   df = df[df['origin_name'] == test_file]
 
   frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
-  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0].to_list()
+  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
 
   frames = []
   for frame in frame_uids:
