@@ -7,6 +7,8 @@ import torch
 from dotenv import load_dotenv
 import pdb
 import pandas as pd
+import time
+
 
 ### CONFIGURE KEYS IN A .ENV FILE###
 load_dotenv()
@@ -168,15 +170,47 @@ def get_frames_and_audio(test_file):
   df = df[df['origin_name'] == test_file]
 
   frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
-  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0].to_list()
+  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
 
+  max_retries = 100
   frames = []
   for frame in frame_uids:
-      frames.append(genai.get_file(frame))
+      retries = 0
+      success = False
+      while retries < max_retries and not success:
+          try:
+              # Attempt to fetch the frame
+              response = genai.get_file(frame)
+              frames.append(response)
+              success = True
+          except Exception as e:
+              # Handle failure: wait and then retry
+              wait_time = 2 ** retries  # Exponential backoff
+              print(f"Error fetching {frame}: {e}. Retrying in {wait_time} seconds...")
+              time.sleep(wait_time)
+              retries += 1
+      if not success:
+          print(f"Failed to fetch {frame} after {max_retries} attempts.")
+          frames.append(None)  # Optionally, append None or a specific error message
 
-  audio = genai.get_file(audio_uid)
 
-  return frames, audio
+  while retries < max_retries and not success:
+      try:
+          # Attempt to fetch the frame
+          audio = genai.get_file(audio_uid)
+          success = True
+      except Exception as e:
+          # Handle failure: wait and then retry
+          wait_time = 2 ** retries  # Exponential backoff
+          print(f"Error fetching {audio_uid}: {e}. Retrying in {wait_time} seconds...")
+          time.sleep(wait_time)
+          retries += 1
+  if not success:
+      print(f"Failed to fetch {audio_uid} after {max_retries} attempts.")
+      frames.append(None)  # Optionally, append None or a specific error message
+
+
+  return frames,  audio
 
 
 
