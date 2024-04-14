@@ -124,7 +124,10 @@ function GroupIndiv() {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
-            data: formData
+            data: formData,
+            params: {
+                "meetingId":selectedMeeting._id
+            }
         }
         const res = await axios(uploadUrlConfig)
         console.log(res.data)
