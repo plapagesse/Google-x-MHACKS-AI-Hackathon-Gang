@@ -14,6 +14,7 @@ from pyannote.audio import Pipeline
 from moviepy.editor import VideoFileClip
 from pyannote.audio import Pipeline
 from prompters import *
+from pydub import AudioSegment
 
 ### CONFIGURE KEYS IN A .ENV FILE###
 load_dotenv()
@@ -215,7 +216,7 @@ def get_speaker_frequencies(audio_file):
 def get_frames():
 
   # Specify the path of your pickle file
-  pickle_file_path = 'testSample1.pkl'
+  pickle_file_path = 'testSample2_frames_handles.pkl'
 
   # Open the file in binary read mode
   with open(pickle_file_path, 'rb') as file:
@@ -247,27 +248,31 @@ def get_speaker_freq(wav_file):
     diarization = pipeline(wav_file)
 
     speaker_freq = {}
+    speaker_stamps = []
     # print the result
     for turn, _, speaker in diarization.itertracks(yield_label=True):
         if speaker not in speaker_freq:
            speaker_freq[speaker]=0
         speaker_freq[speaker]+=1
-        print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
-    return speaker_freq
+        speaker_stamps.append([(turn.start, turn.end), speaker])
 
-def run_prompts(filename, members):
+        print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+    return speaker_freq, speaker_stamps
+
+def run_prompts(filename, members, user_name, personal_id_audio, do_all = True):
     
 
     video_path = filename
     mp3_path = 'audio.mp3'
     wav_path = 'audio.wav'
+    
 
     mp3_audio = extract_audio(video_path, mp3_path, codec='mp3')
     wav_audio = extract_audio(video_path, wav_path, codec='pcm_s16le')
     extract_frame_from_video(filename)
 
 
-    ### UPLOAD FILES ###
+    ## UPLOAD FILES ###
     files = os.listdir(FRAME_EXTRACTION_DIRECTORY)
     files = sorted(files)
     files_to_upload = []
@@ -292,9 +297,15 @@ def run_prompts(filename, members):
 
     ####
 
-    
-    speaker_frequencies = get_speaker_freq(wav_path)
+    audio1 = AudioSegment.from_file(wav_path)
+    audio2 = AudioSegment.from_file(personal_id_audio)
+    combined_audio = audio1 + audio2
+    combined_audio.export("combined_file.wav", format="wav")
+
+    speaker_frequencies, _ = get_speaker_freq(wav_path)
+    _, appended_frequencies = get_speaker_freq("combined_file.wav")
     audio_file = genai.upload_file(path=mp3_path)
+
 
     future_tasks = FutureTaskPrompter()
     effort = MeetingEffortPrompter()
@@ -303,49 +314,70 @@ def run_prompts(filename, members):
     respect = MeetingRespectPrompter()
     productivity = MeetingProductivityPrompter()
     scribe = MeetingScribePrompter()
+    personal_feed = MeetingPersonalFeedback()
 
 
+    if do_all:
+        response = {}
 
-    response = {}
+        summary = scribe.prompt(uploaded_files, audio_file, members)
+        response['scribe'] = summary
+        print(summary)
 
-    summary = scribe.prompt(uploaded_files, audio_file, members)
-    response['scribe'] = summary
-    print(summary)
+        productivity_eval = productivity.prompt(uploaded_files, audio_file, speaker_frequencies)
+        response['meetingFeedback']= [productivity_eval]
+        print(productivity_eval)
 
-    productivity_eval = productivity.prompt(uploaded_files, audio_file, speaker_frequencies)
-    response['meetingFeedback']= [productivity_eval]
-    print(productivity_eval)
+        participation_eval = participation.prompt(uploaded_files, audio_file, speaker_frequencies)
+        response['meetingFeedback'].append(participation_eval)
+        print(participation_eval)
 
-    participation_eval = participation.prompt(uploaded_files, audio_file, speaker_frequencies)
-    response['meetingFeedback'].append(participation_eval)
-    print(participation_eval)
+        respect_eval = respect.prompt(uploaded_files, audio_file)
+        response['meetingFeedback'].append(respect_eval)
+        print(respect_eval)
 
-    respect_eval = respect.prompt(uploaded_files, audio_file)
-    response['meetingFeedback'].append(respect_eval)
-    print(respect_eval)
+        effort_eval = effort.prompt(uploaded_files, audio_file)
+        response['meetingFeedback'].append(effort_eval)
+        print(effort_eval)
 
-    effort_eval = effort.prompt(uploaded_files, audio_file)
-    response['meetingFeedback'].append(effort_eval)
-    print(effort_eval)
+        professionalism_eval = professionalism.prompt(uploaded_files, audio_file)
+        response['meetingFeedback'].append(professionalism_eval)
+        print(professionalism_eval)
 
-    professionalism_eval = professionalism.prompt(uploaded_files, audio_file)
-    response['meetingFeedback'].append(professionalism_eval)
-    print(professionalism_eval)
+        future_task_list = future_tasks.prompt(uploaded_files, audio_file)
+        response['futureTasks'] = future_task_list
+        print(future_task_list)
 
-    future_task_list = future_tasks.prompt(uploaded_files, audio_file)
-    response['futureTasks'] = future_task_list
-    print(future_task_list)
+        personal_feedback = personal_feed.prompt(uploaded_files, audio_file, members, user_name, appended_frequencies)
+        response['personal'] = personal_feedback
+        print(personal_feedback)
 
-    print(response)
+    else:
+        personal_feedback = personal_feed.prompt(uploaded_files, audio_file, members, user_name, appended_frequencies)
+        response = {
+           'personal' : personal_feedback
+        }
+        print(personal_feedback)
+       
+
+
 
     return response
 
 
 ### TESTING MAIN FUNCTION CALL 
 if __name__ == '__main__':
+   #TESTING MAIN BACKEND CALL
    video = 'testSample1.mp4'
    members = ['Pedro', 'Vara', 'Noah', "Rich"]
-   run_prompts(video, members)
+   personal_audio = './Vara intro.wav'
+   run_prompts(video, members, 'Vara', personal_audio, True)
+
+
+    
+
+
+
 
 
 
