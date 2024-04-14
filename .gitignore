@@ -1,3 +1,11 @@
+.env
+.vscode
+*.pkl
+*.zip
+*.jpg
+*__pycache__*
+
+
 !*.py
 !*.md
 !*.ipynb
