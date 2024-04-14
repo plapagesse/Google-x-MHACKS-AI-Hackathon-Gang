@@ -24,14 +24,22 @@ AUDIO_FILE = "DG Check-in-20230705_084639-Meeting Recording (online-video-cutter
 class MeetingScribe:
     def __init__(self):
         pass
-    def prompt(self, frames, audio):
+
+    def prompt(self, frames, audio, attendees):
+
+        attendance = ''
+        for person in attendees:
+            attendance+= person + ', '
+
+        attendance = 'ATTENDEES: ' + attendance
+        print(attendance)
 
         question = """You are the meeting scribe. Your job is to take 
         detailed notes on what was discussed throughout the meeting. 
         Provide references to time frames of the video when possible.
         The scribe is the person responsible for taking notes during the meeting."""
 
-        context = [question]
+        context = [question, attendance]
 
         for frame in frames:
            time_stamp = get_timestamp(frame.display_name)
@@ -242,7 +250,12 @@ if __name__ == '__main__':
     audio = genai.get_file(audio_uid)
 
     scribe = MeetingScribe()
-    scribe.prompt(frames, audio)
+    attendees = [
+       'Pedro', 'Vara', 'Noah', 'Rich'
+    ]
+    scribe.prompt(frames, audio, attendees)
+
+    
 
 
 
