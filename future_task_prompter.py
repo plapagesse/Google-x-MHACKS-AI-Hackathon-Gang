@@ -2,9 +2,10 @@ from video import make_request, get_timestamp
 import google.generativeai as genai
 
 class FutureTaskPrompter:
-    PROMPT = ("Note down action items, todos, and follow up tasks"
-              "in this meeting in the form of succinct bullet points."
-              "Don't be wordy.")
+    PROMPT = ("Note down action items, todos, and follow up tasks required of participants"
+              "in this meeting in a single list of succinct bullet points."
+              "Don't be wordy - these should be easily imported into"
+              "task management software")
 
     def __init__(self, model):
         self.model = model
