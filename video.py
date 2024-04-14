@@ -1,14 +1,15 @@
-import google.generativeai as genai
-import cv2
 import os
+import pdb
+import pickle
 import shutil
-from pyannote.audio import Pipeline
+import time
+
+import cv2
+import google.generativeai as genai
+import pandas as pd
 import torch
 from dotenv import load_dotenv
-import pdb
-import pandas as pd
-import time
-import pickle 
+from pyannote.audio import Pipeline
 
 ### CONFIGURE KEYS IN A .ENV FILE###
 load_dotenv()
