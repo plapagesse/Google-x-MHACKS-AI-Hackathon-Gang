@@ -19,7 +19,7 @@ class FutureTaskPrompter:
         return response.text
 
 
-class MeetingEffort:
+class MeetingEffortPrompter:
     def __init__(self):
         pass
 
@@ -35,7 +35,7 @@ class MeetingEffort:
         return response
 
 
-class MeetingParticipation:
+class MeetingParticipationPrompter:
     def __init__(self):
         pass
 
@@ -66,7 +66,7 @@ Please provide a concise summary of your findings and recommendations to enhance
         return response
 
 
-class MeetingProfessionalism:
+class MeetingProfessionalismPrompter:
     def __init__(self):
         pass
 
@@ -82,7 +82,7 @@ class MeetingProfessionalism:
         return response
 
 
-class MeetingRespect:
+class MeetingRespectPrompter:
     def __init__(self):
         pass
 
@@ -98,7 +98,7 @@ class MeetingRespect:
         return response
 
 
-class MeetingProductivity:
+class MeetingProductivityPrompter:
     def __init__(self):
         pass
 
@@ -115,7 +115,7 @@ class MeetingProductivity:
         return response
 
 
-class MeetingScribe:
+class MeetingScribePrompter:
     def __init__(self):
         pass
 
