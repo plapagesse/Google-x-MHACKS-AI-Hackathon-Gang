@@ -109,7 +109,8 @@ def handleFileUpload():
             "meetingSummary":output["scribe"],
             "meetingProductivitySummary":output["meetingFeedback"],
             "future_tasks":output["futureTasks"],
-            "memberIndivFeedback" : {"Vara":output["personal"]}
+            "memberIndivFeedback" : {"Vara":output["personal"]},
+            "videolink":file.filename
         }}
     )
     return jsonify({"status":"OK"})
