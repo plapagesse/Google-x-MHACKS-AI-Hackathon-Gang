@@ -1,8 +1,26 @@
 import google.generativeai as genai
 import pdb
 
-from video import get_timestamp, make_request
+FRAME_PREFIX = "_frame"
 
+def get_timestamp(filename):
+  """Extracts the frame count (as an integer) from a filename with the format
+     'output_file_prefix_frame00:00.jpg'.
+  """
+  parts = filename.split(FRAME_PREFIX)
+  if len(parts) != 2:
+      return None  # Indicates the filename might be incorrectly formatted
+  return parts[1].split('.')[0]
+
+
+def make_request(prompt, files):
+  request = [prompt]
+  for file in files:
+    request.append(file.timestamp)
+    request.append(file.response)
+    # request.append(get_timestamp(file.display_name))
+    # request.append(file)
+  return request
 
 class FutureTaskPrompter:
     PROMPT = (

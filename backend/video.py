@@ -93,14 +93,6 @@ def extract_frame_from_video(video_file_path):
   vidcap.release() # Release the capture object\n",
   print(f"Completed video frame extraction!\n\nExtracted: {frame_count} frames")
 
-def make_request(prompt, files):
-  request = [prompt]
-  for file in files:
-    request.append(file.timestamp)
-    request.append(file.response)
-    # request.append(get_timestamp(file.display_name))
-    # request.append(file)
-  return request
 
 def upload_video(vid_name, df, do_upload):
 
@@ -275,6 +267,7 @@ def run_prompts(filename, members, user_name, personal_id_audio, do_all = True):
     ## UPLOAD FILES ###
     files = os.listdir(FRAME_EXTRACTION_DIRECTORY)
     files = sorted(files)
+    #files = files[:10]
     files_to_upload = []
     for file in files:
         files_to_upload.append(
@@ -362,9 +355,9 @@ def run_prompts(filename, members, user_name, personal_id_audio, do_all = True):
 ### TESTING MAIN FUNCTION CALL 
 if __name__ == '__main__':
    #TESTING MAIN BACKEND CALL
-   video = 'testSample1.mp4'
+   video = '../testSample1.mp4'
    members = ['Pedro', 'Vara', 'Noah', "Rich"]
-   personal_audio = './Vara intro.wav'
+   personal_audio = '../Vara intro.wav'
    run_prompts(video, members, 'Vara', personal_audio, True)
 
 
