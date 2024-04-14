@@ -296,3 +296,20 @@
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
 }
+
+.group-main-right-meetingUpload {
+    flex: 1;
+    border-top: 1px solid #847e7e;
+    margin-top: 5px;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.group-main-right-meetingUpload>h1 {
+    margin: 0;
+}
+
+.group-main-right-meetingUpload>p {
+    margin: 0;
+}

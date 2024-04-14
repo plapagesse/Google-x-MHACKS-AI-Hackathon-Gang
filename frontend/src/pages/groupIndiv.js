@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
 import axios from "axios"
 
@@ -8,6 +8,7 @@ import homeicon from "../home_icon.png"
 import "./groupIndiv.css"
 
 function GroupIndiv() {
+    const fileUpload = useRef()
     const { groupId } = useParams()
     const [createMessageNeverOpened, setCreateMessageNeverOpened] = useState(true)
     const [displayCreateMessage, setDisplayCreateMessage] = useState(false)
@@ -113,11 +114,27 @@ function GroupIndiv() {
         )
     }
 
+    const handleFileSubmit = async () => {
+        const file = fileUpload.current.files[0]
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadUrlConfig = {
+            "method": "POST",
+            "url": "http://localhost:5000/handleFileUpload",
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            data: formData
+        }
+        const res = await axios(uploadUrlConfig)
+        console.log(res.data)
+    }
+
     const displayRightContent = () => {
         if (selectedMeeting) {
             const dateTime = new Date(selectedMeeting.meetingDateTime);
             const period = dateTime.getHours() < 12 ? 'am' : 'pm';
-            if(selectedMeeting.videolink){
+            if (selectedMeeting.videolink) {
                 return (
                     <div className="group-main-right-meetingindiv">
                         <div className="group-main-right-meetingindiv-left">
@@ -151,10 +168,13 @@ function GroupIndiv() {
                     </div>
                 )
             }
-            else{
+            else {
                 return (
-                    <div className="group-main-right-meetingindiv">
-                        Upload video
+                    <div className="group-main-right-meetingUpload">
+                        <h1>{selectedMeeting.name} - {dateTime.getMonth() + 1}/{dateTime.getDate()}/{dateTime.getFullYear()}, {dateTime.getHours() % 12 || 12}:{dateTime.getMinutes()} {period}</h1>
+                        <p>{selectedMeeting.description}</p>
+                        <input ref={fileUpload} type="file" />
+                        <button onClick={handleFileSubmit}>Submit</button>
                     </div>
                 )
             }
