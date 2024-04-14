@@ -3,7 +3,10 @@ from flask_cors import CORS, cross_origin
 from bson.objectid import ObjectId
 import db
 import sys
+import boto3
+import os
 
+s3_client = boto3.client('s3', region_name="us-east-2")
 app = Flask(__name__)
 CORS(app)
 
@@ -86,6 +89,26 @@ def createMeeting():
 @cross_origin()
 def handleCreateUser():    
     return jsonify({"id":"id"})
+
+@app.route("/handleFileUpload", methods=['POST'])
+@cross_origin()
+def handleFileUpload():
+    file = request.files['file']
+    file.save('files/' + file.filename)
+    return jsonify({"status":"OK"})
+
+@app.route('/getUploadLink')
+@cross_origin()
+def handleGetUploadLink():
+    meetingid = request.args.get("meetingid")
+    bucketname = "googlemhacks"
+    response = s3_client.generate_presigned_url(
+        'put_object',
+        Params={'Bucket': bucketname, 'Key': meetingid+".mp4"},
+        ExpiresIn=3600,
+        HttpMethod='PUT'
+    )
+    return jsonify({"url":response})
 
 if __name__ == '__main__':
     app.run(debug=True)
