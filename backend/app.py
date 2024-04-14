@@ -5,6 +5,7 @@ import db
 import sys
 import boto3
 import os
+import video
 
 s3_client = boto3.client('s3', region_name="us-east-2")
 app = Flask(__name__)
@@ -77,9 +78,9 @@ def fetchIndivGroup():
 def createMeeting():
     args_dict = request.json
     args_dict["videolink"] = ""
-    args_dict["future_tasks"] = []
+    args_dict["future_tasks"] = ""
     args_dict["meetingSummary"] = ""
-    args_dict["meetingProductivitySummary"] = ""
+    args_dict["meetingProductivitySummary"] = []
     args_dict["meetingCriticism"] = ""
     args_dict["memberIndivFeedback"] = {}
     db.client["dev"]["meetings"].insert_one(args_dict)
@@ -95,6 +96,16 @@ def handleCreateUser():
 def handleFileUpload():
     file = request.files['file']
     file.save('files/' + file.filename)
+    members = ['Pedro', 'Vara', 'Noah', "Rich"]
+    output = video.run_prompts("files/"+file.filename, members)
+    db.client["dev"]["meetings"].update_one(
+        {'_id':ObjectId(request.args.get("meetingId"))},
+        {'$set':{
+            "meetingSummary":output["scribe"],
+            "meetingProductivitySummary":output["meetingFeedback"],
+            "future_tasks":output["futureTasks"]
+        }}
+    )
     return jsonify({"status":"OK"})
 
 @app.route('/getUploadLink')
