@@ -110,7 +110,7 @@ function GroupIndiv() {
                         const period = dateTime.getHours() < 12 ? 'am' : 'pm';
                         return (
                             <div key={el._id} className="group-main-left-expand-indiv" onClick={() => handleSelectMeeting(el)}>
-                                <p>{el.name}</p>
+                                <p><strong>{el.name}</strong></p>
                                 <p>{`
                                     ${dateTime.getMonth() + 1}/${dateTime.getDate()}/${dateTime.getFullYear()}, ${dateTime.getHours() % 12 || 12}:${dateTime.getMinutes()} ${period}
                                 `}</p>
