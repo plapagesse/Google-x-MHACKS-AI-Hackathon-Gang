@@ -1,4 +1,4 @@
-from video import make_request
+from video import make_request, get_timestamp
 import google.generativeai as genai
 
 class FutureTaskPrompter:
