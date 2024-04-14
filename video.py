@@ -317,47 +317,41 @@ def run_prompts(filename, members, user_name, personal_id_audio, do_all = True):
     personal_feed = MeetingPersonalFeedback()
 
 
-    if do_all:
-        response = {}
+    
+    response = {}
 
-        summary = scribe.prompt(uploaded_files, audio_file, members)
-        response['scribe'] = summary
-        print(summary)
+    summary = scribe.prompt(uploaded_files, audio_file, members)
+    response['scribe'] = summary
+    print(summary)
 
-        productivity_eval = productivity.prompt(uploaded_files, audio_file, speaker_frequencies)
-        response['meetingFeedback']= [productivity_eval]
-        print(productivity_eval)
+    productivity_eval = productivity.prompt(uploaded_files, audio_file, speaker_frequencies)
+    response['meetingFeedback']= [productivity_eval]
+    print(productivity_eval)
 
-        participation_eval = participation.prompt(uploaded_files, audio_file, speaker_frequencies)
-        response['meetingFeedback'].append(participation_eval)
-        print(participation_eval)
+    participation_eval = participation.prompt(uploaded_files, audio_file, speaker_frequencies)
+    response['meetingFeedback'].append(participation_eval)
+    print(participation_eval)
 
-        respect_eval = respect.prompt(uploaded_files, audio_file)
-        response['meetingFeedback'].append(respect_eval)
-        print(respect_eval)
+    respect_eval = respect.prompt(uploaded_files, audio_file)
+    response['meetingFeedback'].append(respect_eval)
+    print(respect_eval)
 
-        effort_eval = effort.prompt(uploaded_files, audio_file)
-        response['meetingFeedback'].append(effort_eval)
-        print(effort_eval)
+    effort_eval = effort.prompt(uploaded_files, audio_file)
+    response['meetingFeedback'].append(effort_eval)
+    print(effort_eval)
 
-        professionalism_eval = professionalism.prompt(uploaded_files, audio_file)
-        response['meetingFeedback'].append(professionalism_eval)
-        print(professionalism_eval)
+    professionalism_eval = professionalism.prompt(uploaded_files, audio_file)
+    response['meetingFeedback'].append(professionalism_eval)
+    print(professionalism_eval)
 
-        future_task_list = future_tasks.prompt(uploaded_files, audio_file)
-        response['futureTasks'] = future_task_list
-        print(future_task_list)
+    future_task_list = future_tasks.prompt(uploaded_files, audio_file)
+    response['futureTasks'] = future_task_list
+    print(future_task_list)
 
-        personal_feedback = personal_feed.prompt(uploaded_files, audio_file, members, user_name, appended_frequencies)
-        response['personal'] = personal_feedback
-        print(personal_feedback)
+    personal_feedback = personal_feed.prompt(uploaded_files, audio_file, members, user_name, appended_frequencies)
+    response['personal'] = personal_feedback
+    print(personal_feedback)
 
-    else:
-        personal_feedback = personal_feed.prompt(uploaded_files, audio_file, members, user_name, appended_frequencies)
-        response = {
-           'personal' : personal_feedback
-        }
-        print(personal_feedback)
        
 
 
