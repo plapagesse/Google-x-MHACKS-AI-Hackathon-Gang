@@ -223,17 +223,13 @@ def get_frames_and_audio(test_file):
     df = pd.read_csv('file_manifest.csv')
     df = df[df['origin_name'] == test_file]
 
-  frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
-  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
+    frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
+    audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
 
-  frames = []
-  for frame in frame_uids:
-      frames.append(genai.get_file(frame))
-
-  audio = genai.get_file(audio_uid)
+    frames = [fetch_with_retries(frame) for frame in frame_uids]
+    audio = fetch_with_retries(audio_uid)
 
     return frames, audio
-
 
 if __name__ == '__main__':
     
