@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
 from bson.objectid import ObjectId
 import db
@@ -90,6 +90,11 @@ def createMeeting():
 @cross_origin()
 def handleCreateUser():    
     return jsonify({"id":"id"})
+
+@app.route('/getVideo')
+@cross_origin()
+def getVideo():  
+    return send_file("files/"+request.args.get("video_path"), mimetype='video/mp4')
 
 @app.route("/handleFileUpload", methods=['POST'])
 @cross_origin()
