@@ -3,6 +3,7 @@ import pdb
 import pickle
 import shutil
 import time
+import io
 
 import cv2
 import google.generativeai as genai
@@ -10,6 +11,9 @@ import pandas as pd
 import torch
 from dotenv import load_dotenv
 from pyannote.audio import Pipeline
+from moviepy.editor import VideoFileClip
+from pyannote.audio import Pipeline
+from prompters import *
 
 ### CONFIGURE KEYS IN A .ENV FILE###
 load_dotenv()
@@ -34,6 +38,17 @@ class File:
     self.response = response
 
 
+def extract_audio(video_file_path, audio_path, codec='mp3'):
+    # Load the video file
+    video = VideoFileClip(video_file_path)
+    
+    # Extract the audio from the video
+    audio = video.audio
+    #buffer = io.BytesIO()
+    # Write the audio to a file in the specified format
+    audio.write_audiofile(audio_path, codec=codec)
+    # buffer.seek(0)
+    # return buffer
 
 
 def get_timestamp(filename):
@@ -80,16 +95,18 @@ def extract_frame_from_video(video_file_path):
 def make_request(prompt, files):
   request = [prompt]
   for file in files:
-    request.append(get_timestamp(file.display_name))
-    request.append(file)
+    request.append(file.timestamp)
+    request.append(file.response)
+    # request.append(get_timestamp(file.display_name))
+    # request.append(file)
   return request
 
-def upload_video(prefix, df, do_upload):
+def upload_video(vid_name, df, do_upload):
 
     shutil.rmtree(FRAME_EXTRACTION_DIRECTORY)
     os.mkdir(FRAME_EXTRACTION_DIRECTORY)
 
-    video_file_name = prefix + '.mp4'
+    video_file_name = vid_name
     extract_frame_from_video(video_file_name) 
     # Process each frame in the output directory
     files = os.listdir(FRAME_EXTRACTION_DIRECTORY)
@@ -217,15 +234,124 @@ def get_audio(test_file):
 
   return audio
 
+def get_speaker_freq(wav_file):
+    pipeline = Pipeline.from_pretrained(
+    "pyannote/speaker-diarization-3.1",
+    use_auth_token=HUGGING_FACE_KEY)
 
-def run_prompts(filename):
+    # send pipeline to GPU (when available)
+
+    pipeline.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+
+    # apply pretrained pipeline
+    diarization = pipeline(wav_file)
+
+    speaker_freq = {}
+    # print the result
+    for turn, _, speaker in diarization.itertracks(yield_label=True):
+        if speaker not in speaker_freq:
+           speaker_freq[speaker]=0
+        speaker_freq[speaker]+=1
+        print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+    return speaker_freq
+
+def run_prompts(filename, members):
     
 
+    video_path = filename
+    mp3_path = 'audio.mp3'
+    wav_path = 'audio.wav'
+
+    mp3_audio = extract_audio(video_path, mp3_path, codec='mp3')
+    wav_audio = extract_audio(video_path, wav_path, codec='pcm_s16le')
+    extract_frame_from_video(filename)
+
+
+    ### UPLOAD FILES ###
+    files = os.listdir(FRAME_EXTRACTION_DIRECTORY)
+    files = sorted(files)
+    files_to_upload = []
+    for file in files:
+        files_to_upload.append(
+            File(file_path=os.path.join(FRAME_EXTRACTION_DIRECTORY, file)))
+
+    full_video = True
+
+    uploaded_files = []
+    print(f'Uploading {len(files_to_upload) if full_video else 10} files. This might take a bit...')
+
+    for file in files_to_upload if full_video else files_to_upload[40:50]:
+        print(f'Uploading: {file.file_path}...')
+        response = genai.upload_file(path=file.file_path)
+        file.set_file_response(response)
+        uploaded_files.append(file)
+
+    print(f"Completed file uploads!\n\nUploaded: {len(uploaded_files)} files")
 
     
 
-    frames = get_frames()
-    audio = get_audio("testSample1")
+    ####
+
+    
+    speaker_frequencies = get_speaker_freq(wav_path)
+    audio_file = genai.upload_file(path=mp3_path)
+
+    future_tasks = FutureTaskPrompter()
+    effort = MeetingEffortPrompter()
+    participation = MeetingParticipationPrompter()
+    professionalism = MeetingProfessionalismPrompter()
+    respect = MeetingRespectPrompter()
+    productivity = MeetingProductivityPrompter()
+    scribe = MeetingScribePrompter()
+
+
+
+    response = {}
+
+    summary = scribe.prompt(uploaded_files, audio_file, members)
+    response['scribe'] = summary
+    print(summary)
+
+    productivity_eval = productivity.prompt(uploaded_files, audio_file, speaker_frequencies)
+    response['meetingFeedback']= [productivity_eval]
+    print(productivity_eval)
+
+    participation_eval = participation.prompt(uploaded_files, audio_file, speaker_frequencies)
+    response['meetingFeedback'].append(participation_eval)
+    print(participation_eval)
+
+    respect_eval = respect.prompt(uploaded_files, audio_file)
+    response['meetingFeedback'].append(respect_eval)
+    print(respect_eval)
+
+    effort_eval = effort.prompt(uploaded_files, audio_file)
+    response['meetingFeedback'].append(effort_eval)
+    print(effort_eval)
+
+    professionalism_eval = professionalism.prompt(uploaded_files, audio_file)
+    response['meetingFeedback'].append(professionalism_eval)
+    print(professionalism_eval)
+
+    future_task_list = future_tasks.prompt(uploaded_files, audio_file)
+    response['futureTasks'] = future_task_list
+    print(future_task_list)
+
+    print(response)
+
+    return response
+
+
+### TESTING MAIN FUNCTION CALL 
+if __name__ == '__main__':
+   video = 'testSample1.mp4'
+   members = ['Pedro', 'Vara', 'Noah', "Rich"]
+   run_prompts(video, members)
+
+
+
+
+
+
 
 
 

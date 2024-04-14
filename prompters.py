@@ -11,11 +11,13 @@ class FutureTaskPrompter:
         "task management software"
     )
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self):
+        self.model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
 
     def prompt(self, frames, audio):
+        frames = [frame.response for frame in frames]
         prompt = [self.PROMPT] + frames + [audio]
+
         response = self.model.generate_content(prompt, request_options={"timeout": 600})
         return response.text
 
@@ -30,7 +32,7 @@ class MeetingEffortPrompter:
         request = make_request(prompt, frames)
         request.append(audio)
         response = model.generate_content(request, request_options={"timeout": 600})
-        return response
+        return response.text
 
 
 class MeetingParticipationPrompter:
@@ -58,7 +60,7 @@ Please provide a concise summary of your findings and recommendations to enhance
         request.append(audio)
         request.append(str(speaker_frequencies))
         response = model.generate_content(request, request_options={"timeout": 600})
-        return response
+        return response.text
 
 
 class MeetingProfessionalismPrompter:
@@ -71,7 +73,7 @@ class MeetingProfessionalismPrompter:
         request = make_request(prompt, frames)
         request.append(audio)
         response = model.generate_content(request, request_options={"timeout": 600})
-        return response
+        return response.text
 
 
 class MeetingRespectPrompter:
@@ -84,7 +86,7 @@ class MeetingRespectPrompter:
         request = make_request(prompt, frames)
         request.append(audio)
         response = model.generate_content(request, request_options={"timeout": 600})
-        return response
+        return response.text
 
 
 class MeetingProductivityPrompter:
@@ -98,7 +100,7 @@ class MeetingProductivityPrompter:
         request.append(audio)
         request.append(str(speaker_frequencies))
         response = model.generate_content(request, request_options={"timeout": 600})
-        return response
+        return response.text
 
 
 class MeetingScribePrompter:
@@ -122,12 +124,12 @@ class MeetingScribePrompter:
         context = [question, attendance]
 
         for frame in frames:
-            time_stamp = get_timestamp(frame.display_name)
-            context.append(time_stamp)
-            context.append(frame)
+            # time_stamp = get_timestamp(frame.display_name)
+            context.append(frame.timestamp)
+            context.append(frame.response)
 
         context.append(audio)
 
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
         response = model.generate_content(context, request_options={"timeout": 600})
-        print(response.text)
+        return response.text
