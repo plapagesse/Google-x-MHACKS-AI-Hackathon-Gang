@@ -1,4 +1,5 @@
 import google.generativeai as genai
+import pdb
 
 from video import get_timestamp, make_request
 
@@ -153,28 +154,31 @@ class MeetingPersonalFeedback:
         for l in personal_audio:
             if l[1] == user_speaker_num:
                 l[1] = user_name
+        
+        # pdb.set_trace()
 
         #translate from person to actual name
 
-        question = """"""
+        question = f"""You are tasked with giving personal feedback for {user_name} for this meeting. Based on how much they speak, how technically aware they are, how much effort they put in, how respectful they are to peers(identify often and clear instances of interruptions or rudeness, or abrupt cutting off. Pay particular attention to tone of voice, how participants handle interruptions, and the nature of disagreements. Highlight significant interactions that demonstrate obvious disrespect or interrupting another participant, dismissing their question, or disruption to the flow of conversation by {user_name}. Additionally, note respectful and good behavior if that is what is mostly presented by {user_name}. Provide examples of these interactions and suggest how they might be addressed in future meetings.), how motivated they are for tasks moving forward, how productive they are, give them structured and effective feedback."""
 
         context = [question, attendance]
 
         for i, frame in enumerate(frames):
             # time_stamp = get_timestamp(frame.display_name)
-            context.append(get_timestamp(frame.display_name))
-            context.append(frame)
+            context.append(get_timestamp(frame.response.display_name))
+            context.append(frame.response)
             for pairs in personal_audio:
                 interval = pairs[0]
-                if i in interval:
+                #pdb.set_trace()
+                if i >= interval[0] and i <= interval[1]:
                     context.append("Talking: " + pairs[1])
                     
                 
             # context.append(frame.timestamp)
             # context.append(frame.response)
-            context.append()
 
         context.append(audio)
+        #pdb.set_trace()
 
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
         response = model.generate_content(context, request_options={"timeout": 600})
