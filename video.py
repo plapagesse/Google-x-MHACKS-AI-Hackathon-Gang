@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import pdb
 import pandas as pd
 import time
-
+import pickle 
 
 ### CONFIGURE KEYS IN A .ENV FILE###
 load_dotenv()
@@ -21,6 +21,43 @@ video_file_name = "DG Check-in-20230705_084639-Meeting Recording (online-video-c
 FRAME_EXTRACTION_DIRECTORY = "frames"
 FRAME_PREFIX = "_frame"
 AUDIO_FILE = "DG Check-in-20230705_084639-Meeting Recording (online-video-cutter.com) (1).wav"
+
+class MeetingScribe:
+    def __init__(self):
+        pass
+
+    def prompt(self, frames, audio, attendees):
+
+        attendance = ''
+        for person in attendees:
+            attendance+= person + ', '
+
+        attendance = 'ATTENDEES: ' + attendance
+        print(attendance)
+
+        question = """You are the meeting scribe. Your job is to take 
+        detailed notes on what was discussed throughout the meeting. 
+        Provide references to time frames of the video when possible.
+        The scribe is the person responsible for taking notes during the meeting."""
+
+        context = [question, attendance]
+
+        for frame in frames:
+           time_stamp = get_timestamp(frame.display_name)
+           context.append(time_stamp)
+           context.append(frame)
+
+        context.append(audio)
+
+        model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
+        # Make the LLM request.
+        # request = make_request(prompt, uploaded_files)
+        # request.append(audio_file)
+        response = model.generate_content(context, request_options={"timeout": 600})
+        print(response.text)
+
+
+
 
 class File:
   def __init__(self, file_path: str, display_name: str = None):
@@ -186,11 +223,14 @@ def get_frames_and_audio(test_file):
     df = pd.read_csv('file_manifest.csv')
     df = df[df['origin_name'] == test_file]
 
-    frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
-    audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
+  frame_uids = df[df['display_name'].str.contains('jpg')]['uid'].to_list()
+  audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
 
-    frames = [fetch_with_retries(frame) for frame in frame_uids]
-    audio = fetch_with_retries(audio_uid)
+  frames = []
+  for frame in frame_uids:
+      frames.append(genai.get_file(frame))
+
+  audio = genai.get_file(audio_uid)
 
     return frames, audio
 
@@ -203,24 +243,38 @@ if __name__ == '__main__':
     # for prefix in prefixes:
     #    df = upload_video(prefix, df, do_upload=genai.upload_file)
 
-    frames, audio = get_frames_and_audio("testSample1")
-    print(frames)
-    print(audio)
+
+
+
+    # frames, audio = get_frames_and_audio("testSample1")
+    # print(frames)
+    # print(audio)
+
+    # Specify the path of your pickle file
+    test_file = 'testSample1'
+
+    df = pd.read_csv('file_manifest.csv')
+    df = df[df['origin_name'] == test_file]
+    pickle_file_path = 'testSample1.pkl'
+
+    # Open the file in binary read mode
+    with open(pickle_file_path, 'rb') as file:
+        # Deserialize the pickled list of objects
+        loaded_objects = pickle.load(file)
+
+    audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
+    frames = loaded_objects
+    audio = genai.get_file(audio_uid)
+
+    scribe = MeetingScribe()
+    attendees = [
+       'Pedro', 'Vara', 'Noah', 'Rich'
+    ]
+    scribe.prompt(frames, audio, attendees)
+
     
 
-    #df.to_csv("file_manifest.csv")
-    ### GEMINI CALL ###
-    # Create the prompt.
-    # prompt = "based on whose name is highlighted in the meeting (on right side of screen) at each point in the audio file, determine accurately who speaks a lot and who does not. name lighting up = speaking. also give feedback for this meeting. you have to give feedback to each member who spoke, level of participation, as well as overall meeting productivity. also note important things discussed, and possible future tasks"
-    # #prompt = "What was the first thing said in the meeting?"
-    # # Set the model to Gemini 1.5 Pro.
-    # model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-    # Make the LLM request.
-    # request = make_request(prompt, uploaded_files)
-    # request.append(audio_file)
-    # response = model.generate_content(request,
-                                    # request_options={"timeout": 600})
-    # print(response.text)
+
 
 
 
