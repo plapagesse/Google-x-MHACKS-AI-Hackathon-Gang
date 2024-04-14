@@ -236,7 +236,6 @@
 }
 
 .group-main-right-meetingindiv {
-    flex: 1;
     border-top: 1px solid #847e7e;
     margin-top: 5px;
     padding-top: 20px;
@@ -269,7 +268,7 @@
 .group-main-right-content-meetingindiv-tabs {
     display: flex;
     flex-direction: row;
-    height: 7%;
+    height: 40px;
 }
 
 .group-main-right-content-meetingindiv-tabs>div {
@@ -278,7 +277,7 @@
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     font-size: 15px;
-    width: 33.33%;
+    width: 32%;
     text-align: center;
     cursor: pointer;
 }
@@ -290,11 +289,13 @@
 
 .group-main-right-content-meetingindiv-content {
     flex: 1;
-    width: 100%;
+    width: 96%;
     border: 1px solid black;
-    height: 85%;
+    height: 480px;
+    padding: 10px;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
+    overflow: auto;
 }
 
 .group-main-right-meetingUpload {

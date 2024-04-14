@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
+import ReactMarkdown from 'react-markdown';
 import axios from "axios"
 
 import CreateMeeting from "./createMeetingScreen"
@@ -138,6 +139,16 @@ function GroupIndiv() {
             const dateTime = new Date(selectedMeeting.meetingDateTime);
             const period = dateTime.getHours() < 12 ? 'am' : 'pm';
             if (selectedMeeting.videolink) {
+                let content = ""
+                if(selectedTab === "Summary"){
+                    content = selectedMeeting.meetingSummary
+                }
+                if(selectedTab === "ToDo's"){
+                    content = selectedMeeting.future_tasks
+                }
+                if(selectedTab === "Feedback"){
+                    content = selectedMeeting.meetingProductivitySummary.join("\n")
+                }
                 return (
                     <div className="group-main-right-meetingindiv">
                         <div className="group-main-right-meetingindiv-left">
@@ -164,7 +175,7 @@ function GroupIndiv() {
                                 >Feedback</div>
                             </div>
                             <div className="group-main-right-content-meetingindiv-content">
-
+                                <ReactMarkdown children={content} />
                             </div>
                         </div>
 
