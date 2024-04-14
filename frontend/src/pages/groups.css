@@ -1,0 +1,31 @@
+.groups {
+    background-color: #EBF2FA;
+    height: 90vh;
+    padding: 5vh 5%;
+}
+
+.groups-header{
+    margin: 0;
+    height: 8%;
+}
+
+.groups-content{
+    width: 100%;
+    height: 89%;
+    border-top: 1px solid #847e7e;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 200px);
+    grid-template-rows: 200px;
+    grid-gap: 10px;
+    padding-top: 20px;
+}
+
+.groups-content-indiv {
+    border: 1px solid black;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}

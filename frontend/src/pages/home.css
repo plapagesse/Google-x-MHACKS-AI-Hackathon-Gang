@@ -1,0 +1,14 @@
+.home {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.username-indiv {
+    border: 1px solid black;
+    width: 200px;
+    text-align: center;
+    cursor: pointer;
+}

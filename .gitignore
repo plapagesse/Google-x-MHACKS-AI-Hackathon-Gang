@@ -1,7 +1,8 @@
-*
 !*.py
 !*.md
 !*.ipynb
 !requirements.txt
 !file_manifest.csv
 !.gitignore
+!*.js
+!frontend/*
