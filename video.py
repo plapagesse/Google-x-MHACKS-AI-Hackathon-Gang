@@ -198,7 +198,7 @@ def get_speaker_frequencies(audio_file):
 def get_frames():
 
   # Specify the path of your pickle file
-  pickle_file_path = 'sample3_frame_handles.pkl'
+  pickle_file_path = 'testSample1.pkl'
 
   # Open the file in binary read mode
   with open(pickle_file_path, 'rb') as file:
@@ -218,61 +218,16 @@ def get_audio(test_file):
   return audio
 
 
-if __name__ == '__main__':
-    
-    
-    # df = pd.DataFrame({'origin_name': [], "display_name": [], "uid": []})
-    # prefixes = ['testSample1', 'testSample2', 'testSample3', 'testSample4', 'testSample5']
-    # for prefix in prefixes:
-    #    df = upload_video(prefix, df, do_upload=genai.upload_file)
-    #df.to_csv("file_manifest.csv")
-
-
-
-
-    # frames, audio = get_frames_and_audio("testSample1")
-    # print(frames)
-    # print(audio)
-
-    # Specify the path of your pickle file
-    test_file = 'testSample1'
-
-    df = pd.read_csv('file_manifest.csv')
-    df = df[df['origin_name'] == test_file]
-    pickle_file_path = 'testSample1.pkl'
-
-    # Open the file in binary read mode
-    with open(pickle_file_path, 'rb') as file:
-        # Deserialize the pickled list of objects
-        loaded_objects = pickle.load(file)
-
-    audio_uid = df[df['display_name'].str.contains('mp3')]['uid'].iloc[0]
-    frames = loaded_objects
-    audio = genai.get_file(audio_uid)
-
-    scribe = MeetingScribe()
-    attendees = [
-       'Pedro', 'Vara', 'Noah', 'Rich'
-    ]
-    scribe.prompt(frames, audio, attendees)
-
+def run_prompts(filename):
     
 
 
-    #frames, audio = get_frames_and_audio("testSample1")
+    
+
     frames = get_frames()
-    audio = get_audio("testSample3")
-    print(frames)
-    print(audio)
+    audio = get_audio("testSample1")
 
-    #meeting_feedback = MeetingProductivity()
-    # meeting_feedback = MeetingRespect()
-    # meeting_feedback = MeetingProfessionalism()
-    meeting_feedback = MeetingParticipation()
-    meeting_feedback = MeetingEffort()
 
-    response = meeting_feedback.prompt(frames, audio)
-    print(response.text)
 
 
 
