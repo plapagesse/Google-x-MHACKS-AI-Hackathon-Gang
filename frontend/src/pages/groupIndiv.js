@@ -42,6 +42,13 @@ function GroupIndiv() {
             res.data.meetings.sort((a, b) => {
                 return new Date(a.meetingDateTime) - new Date(b.meetingDateTime);
             })
+            for(let meeting of res.data.meetings){
+                if(meeting.videolink){
+                    const response = await fetch(`http://localhost:5000/getVideo?video_path=${meeting.videolink}`)
+                    const videoBlob = await response.blob();
+                    meeting.videolink = (URL.createObjectURL(videoBlob))
+                }
+            }
             setMeetings(res.data.meetings)
         }
         fetchData()
@@ -127,7 +134,7 @@ function GroupIndiv() {
             },
             data: formData,
             params: {
-                "meetingId":selectedMeeting._id
+                "meetingId": selectedMeeting._id
             }
         }
         const res = await axios(uploadUrlConfig)
@@ -140,20 +147,23 @@ function GroupIndiv() {
             const period = dateTime.getHours() < 12 ? 'am' : 'pm';
             if (selectedMeeting.videolink) {
                 let content = ""
-                if(selectedTab === "Summary"){
+                if (selectedTab === "Summary") {
                     content = selectedMeeting.meetingSummary
                 }
-                if(selectedTab === "ToDo's"){
+                if (selectedTab === "ToDo's") {
                     content = selectedMeeting.future_tasks
                 }
-                if(selectedTab === "Feedback"){
+                if (selectedTab === "Feedback") {
                     content = selectedMeeting.meetingProductivitySummary.join("\n")
+                }
+                if (selectedTab === "IndividualFeedback") {
+                    content = selectedMeeting.memberIndivFeedback.Vara
                 }
                 return (
                     <div className="group-main-right-meetingindiv">
                         <div className="group-main-right-meetingindiv-left">
                             <video controls>
-                                <source src="https://www.youtube.com/watch?v=JoIomqIfVOY" type="video/mp4" />
+                                <source src={selectedMeeting.videolink} type="video/mp4" />
                                 Your browser does not support the video tag.
                             </video>
                             <h1>{selectedMeeting.name} - {dateTime.getMonth() + 1}/{dateTime.getDate()}/{dateTime.getFullYear()}, {dateTime.getHours() % 12 || 12}:{dateTime.getMinutes()} {period}</h1>
@@ -173,6 +183,10 @@ function GroupIndiv() {
                                     className={selectedTab === "Feedback" && "group-main-right-content-meetingindiv-tabs-selected"}
                                     onClick={() => setSelectedTab("Feedback")}
                                 >Feedback</div>
+                                <div
+                                    className={selectedTab === "IndividualFeedback" && "group-main-right-content-meetingindiv-tabs-selected"}
+                                    onClick={() => setSelectedTab("IndividualFeedback")}
+                                >Vara's Feedback</div>
                             </div>
                             <div className="group-main-right-content-meetingindiv-content">
                                 <ReactMarkdown children={content} />
