@@ -8,4 +8,5 @@ class FutureTaskPrompter:
 
     def prompt(self, frames, audio):
         prompt = [self.PROMPT] + frames + [audio]
-        return self.model.generate_content(prompt, request_options={"timeout": 600})
+        response = self.model.generate_content(prompt, request_options={"timeout": 600})
+        return response.text
