@@ -97,29 +97,17 @@ def handleFileUpload():
     file = request.files['file']
     file.save('files/' + file.filename)
     members = ['Pedro', 'Vara', 'Noah', "Rich"]
-    output = video.run_prompts("files/"+file.filename, members)
+    output = video.run_prompts("files/"+file.filename, members, 'Vara', '../Vara intro.wav')
     db.client["dev"]["meetings"].update_one(
         {'_id':ObjectId(request.args.get("meetingId"))},
         {'$set':{
             "meetingSummary":output["scribe"],
             "meetingProductivitySummary":output["meetingFeedback"],
-            "future_tasks":output["futureTasks"]
+            "future_tasks":output["futureTasks"],
+            "memberIndivFeedback" : {"Vara":output["personal"]}
         }}
     )
     return jsonify({"status":"OK"})
-
-@app.route('/getUploadLink')
-@cross_origin()
-def handleGetUploadLink():
-    meetingid = request.args.get("meetingid")
-    bucketname = "googlemhacks"
-    response = s3_client.generate_presigned_url(
-        'put_object',
-        Params={'Bucket': bucketname, 'Key': meetingid+".mp4"},
-        ExpiresIn=3600,
-        HttpMethod='PUT'
-    )
-    return jsonify({"url":response})
 
 if __name__ == '__main__':
     app.run(debug=True)
