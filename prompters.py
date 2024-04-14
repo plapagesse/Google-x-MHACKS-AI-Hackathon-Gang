@@ -26,10 +26,7 @@ class MeetingEffortPrompter:
 
     def prompt(self, frames, audio):
         prompt = """You have been provided with timestamped image frames and an audio recording of a recent meeting. Analyze the content and the conversation to evaluate if every member showed genuine preparation, technical knowledge(not asking clueless and repetitive questions), interest to have defined follow-up tasks, shows up on time for meeting. If even one person demonstrates a lack of either of those, note that in a general sense--don't name people by their names.  """
-        # #prompt = "What was the first thing said in the meeting?"
-        # # Set the model to Gemini 1.5 Pro.
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-        # Make the LLM request.
         request = make_request(prompt, frames)
         request.append(audio)
         response = model.generate_content(request, request_options={"timeout": 600})
@@ -56,10 +53,7 @@ Recommendations for Participation Balance:
 
 Suggest practical ways to ensure a more balanced and inclusive participation in future meetings, particularly for those who were less engaged.
 Please provide a concise summary of your findings and recommendations to enhance participation equality and meeting effectiveness."""
-        # #prompt = "What was the first thing said in the meeting?"
-        # # Set the model to Gemini 1.5 Pro.
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-        # Make the LLM request.
         request = make_request(prompt, frames)
         request.append(audio)
         request.append(str(speaker_frequencies))
@@ -73,10 +67,7 @@ class MeetingProfessionalismPrompter:
 
     def prompt(self, frames, audio):
         prompt = """You have been provided with timestamped image frames and an audio recording of a recent meeting. Rate the meeting and speech professsionalism and eloquence, mostly in terms of speech and ways of talking. Observe the language and tone used by participants throughout the meeting. Note very excessive instances of casual or unprofessional language such as 'like', 'um', or other non-professional thing, but don't be too strict. Keep it general, avoid specific names."""
-        # #prompt = "What was the first thing said in the meeting?"
-        # # Set the model to Gemini 1.5 Pro.
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-        # Make the LLM request.
         request = make_request(prompt, frames)
         request.append(audio)
         response = model.generate_content(request, request_options={"timeout": 600})
@@ -89,10 +80,7 @@ class MeetingRespectPrompter:
 
     def prompt(self, frames, audio):
         prompt = """You have been provided with timestamped image frames and an audio file of a recent meeting. Closely monitor interactions among participants to identify clear instances of interruptions or rudeness, or abrupt cutting off. Pay particular attention to tone of voice, how participants handle interruptions, and the nature of disagreements. Highlight significant interactions that demonstrate obvious disrespect or disruption to the flow of conversation.Provide examples of these interactions and suggest how they might be addressed in future meetings."""
-        # #prompt = "What was the first thing said in the meeting?"
-        # # Set the model to Gemini 1.5 Pro.
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-        # Make the LLM request.
         request = make_request(prompt, frames)
         request.append(audio)
         response = model.generate_content(request, request_options={"timeout": 600})
@@ -105,10 +93,7 @@ class MeetingProductivityPrompter:
 
     def prompt(self, frames, audio, speaker_frequencies):
         prompt = "You have been provided with timestamped image frames and an audio file of a recent meeting, along with a dictionary detailing speaker frequencies. Analyze the content of the discussion to determine the proportion of time spent on relevant versus unrelated topics. Identify and quantify moments where the discussion veers off-topic to assess overall meeting productivity in percentages."
-        # #prompt = "What was the first thing said in the meeting?"
-        # # Set the model to Gemini 1.5 Pro.
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-        # Make the LLM request.
         request = make_request(prompt, frames)
         request.append(audio)
         request.append(str(speaker_frequencies))
@@ -144,8 +129,5 @@ class MeetingScribePrompter:
         context.append(audio)
 
         model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-        # Make the LLM request.
-        # request = make_request(prompt, uploaded_files)
-        # request.append(audio_file)
         response = model.generate_content(context, request_options={"timeout": 600})
         print(response.text)
